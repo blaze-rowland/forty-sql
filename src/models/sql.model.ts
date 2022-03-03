@@ -39,3 +39,17 @@ export type SqlDateTimeType =
   | 'YEAR';
 
 export type SqlDataType = SqlStringType | SqlNumericType | SqlDateTimeType;
+
+export interface ForeignKeyConstraint {
+  referenceId: string;
+  referenceTable: string;
+}
+export interface TableColumn {
+  name: string;
+  type: SqlDataType;
+  size?: number;
+  default?: string;
+  nullable?: boolean;
+  primaryKey?: boolean;
+  foreignKey?: ForeignKeyConstraint;
+}

@@ -1,14 +1,5 @@
 import mysql from 'mysql2';
-import { SqlDataType } from '../models/sql.model';
-
-interface TableColumn {
-  name: string;
-  type: SqlDataType;
-  size: number;
-  foreign?: boolean;
-  default?: string;
-}
-
+import { TableColumn } from '../models/sql.model';
 export class SqlService {
   private _tableName: string;
   private _columns: Array<string>;
@@ -25,19 +16,22 @@ export class SqlService {
     });
   }
 
-  public createTableQuery(columnsToCreate: Array<TableColumn>): string {
-    /*
-    CREATE TABLE Persons (
-      PersonID int,
-      LastName varchar(255),
-      FirstName varchar(255),
-      Address varchar(255),
-      City varchar(255)
-    );
-    */
-    return `CREATE TABLE ${this._tableName} ${this._sequelizeCreateColumns(
-      columnsToCreate
-    )}`;
+  public createTableQuery(columnsToCreate: Array<TableColumn>): Promise<any> {
+    const query = `CREATE TABLE ${
+      this._tableName
+    } (${this._sequelizeCreateColumns(columnsToCreate)})`;
+
+    return new Promise((resolve, reject) => {
+      try {
+        this.pool.query(query, (err, rows, fields) => {
+          if (err) reject(err);
+
+          resolve(rows);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   public createInsertQuery(): string {
@@ -66,18 +60,22 @@ export class SqlService {
   }
 
   private _sequelizeCreateColumns(columns: Array<TableColumn>) {
-    let result = '(';
-    columns.forEach((obj, i) => {
-      Object.entries(obj).forEach(() => {
-        result += `${obj.name} ${obj.type} ${
-          obj.size ? '(' + obj.size + ')' : ''
-        } ${this._addIfLastIteration(columns, i, ', ')} ${
-          obj.default ? ` DEFAULT '${obj.default}'` : ''
-        }`;
-        // console.log(i);
-      });
+    let result = '';
+    columns.forEach((column, index) => {
+      console.log(column);
+      result += column.name + ' ';
+      result += column.type + ' ';
+      result += column.size ? `(${column.size}) ` : '';
+      result += column.default ? `DEFAULT '${column.default}'` : '';
+      result += column.primaryKey
+        ? `AUTO_INCREMENT, PRIMARY KEY (${column.name})`
+        : '';
+      result += column.foreignKey
+        ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
+        : '';
+      result += this._addIfLastIteration(columns, index, ', ');
     });
-    console.log(result + ')');
+
     return result;
   }
 
@@ -119,8 +117,3 @@ export class SqlService {
     return index === arr.length - 1 ? '' : strToAdd;
   }
 }
-
-new SqlService('products').createTableQuery([
-  { name: 'id', type: 'INT', size: 11 },
-  { name: 'fullName', type: 'VARCHAR', size: 255, default: 'Testy Test' },
-]);
