@@ -1,5 +1,9 @@
-import mysql from "mysql2";
-import { TableColumn } from "../models/sql.model";
+import mysql from 'mysql2';
+import dotenv from 'dotenv';
+import { SqlJoinType, TableColumn, SqlWhereQuery } from '../models/sql.model';
+
+dotenv.config();
+
 export class SqlService {
   private _tableName: string;
   private _columns: Array<string>;
@@ -10,9 +14,10 @@ export class SqlService {
     this._tableName = tableName;
     this._columns = columns || [];
     this.pool = mysql.createPool({
-      host: "localhost",
-      user: "root",
-      database: "forty",
+      host: process.env.FORTY_HOST,
+      user: process.env.FORTY_USER,
+      database: process.env.FORTY_DB,
+      password: process.env.FORTY_PASS,
     });
   }
 
@@ -39,19 +44,20 @@ export class SqlService {
   }
 
   public createFindQuery(
-    columns: Array<string> = ["*"],
+    columns: Array<string> = ['*'],
     condition?: any,
-    limit?: number
+    limit?: number,
+    tableName?: string
   ): string {
-    return `SELECT ${columns} FROM ${this._tableName} ${
-      this._sequelizeWhere(condition) ?? ""
-    } ${limit ? "LIMIT " + limit : ""}`;
+    return `SELECT ${columns} FROM ${tableName || this._tableName} ${
+      this._sequelizeWhere(condition) ?? ''
+    } ${limit ? 'LIMIT ' + limit : ''}`;
   }
 
   public createUpdateQuery(values: any, condition?: any) {
     const updateQuery = this._sequelizeColumns(values);
     return `UPDATE ${this._tableName} SET ${updateQuery} ${
-      this._sequelizeWhere(condition) ?? ""
+      this._sequelizeWhere(condition) ?? ''
     }`;
   }
 
@@ -59,34 +65,55 @@ export class SqlService {
     return `DELETE FROM ${this._tableName} ${this._sequelizeWhere(condition)}`;
   }
 
+  public createJoinQuery(
+    joinType: SqlJoinType,
+    tableName: string,
+    columnsToSelect: Array<string>,
+    columnsOn: any
+  ): string {
+    const query = this._sequelizeJoin(
+      joinType,
+      tableName,
+      columnsToSelect,
+      columnsOn
+    );
+
+    return `${query}`;
+  }
+
+  public createUnionQuery(queries: Array<SqlWhereQuery>, all: boolean) {
+    const query = this._sequelizeUnion(queries, all);
+    return `${query}`;
+  }
+
   private _sequelizeCreateColumns(columns: Array<TableColumn>) {
-    let result = "";
+    let result = '';
     columns.forEach((column, index) => {
-      result += column.name + " ";
-      result += column.type + " ";
-      result += column.size ? `(${column.size}) ` : "";
-      result += column.default ? `DEFAULT '${column.default}'` : "";
+      result += column.name + ' ';
+      result += column.type + ' ';
+      result += column.size ? `(${column.size}) ` : '';
+      result += column.default ? `DEFAULT '${column.default}'` : '';
       result += column.primaryKey
-        ? `${column.autoIncrement ? "AUTO_INCREMENT," : ""} PRIMARY KEY (${
+        ? `${column.autoIncrement ? 'AUTO_INCREMENT,' : ''} PRIMARY KEY (${
             column.name
           })`
-        : "";
+        : '';
       result += column.foreignKey
         ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
-        : "";
-      result += this._addIfLastIteration(columns, index, ", ");
+        : '';
+      result += this._addIfLastIteration(columns, index, ', ');
     });
 
     return result;
   }
 
   private _sequelizeColumns(values: any): string {
-    let result = "";
+    let result = '';
 
     const iterable = Object.keys(values);
     iterable.forEach(
       (key, i) =>
-        (result += `${key} = ? ${this._addIfLastIteration(iterable, i, ", ")}`)
+        (result += `${key} = ? ${this._addIfLastIteration(iterable, i, ', ')}`)
     );
 
     return result;
@@ -95,16 +122,67 @@ export class SqlService {
   private _sequelizeWhere(obj: any): string | void {
     if (!obj) return;
 
-    let result = "WHERE ";
+    let result = 'WHERE ';
     const iterable = Object.entries(obj);
     iterable.forEach(
       ([key, val], i) =>
         (result += `${key} = '${val}' ${this._addIfLastIteration(
           iterable,
           i,
-          " AND "
+          ' AND '
         )}`)
     );
+
+    return result;
+  }
+
+  private _sequelizeJoin(
+    joinType: SqlJoinType,
+    tableName: string,
+    columnsToSelect: Array<string>,
+    columnsOn: { key: string; value: string }
+  ): string | void {
+    if (!tableName || !columnsOn || !columnsOn) return;
+
+    let result = 'SELECT ';
+
+    const fromAlias = tableName[0];
+    const onAlias = this._tableName[0];
+
+    columnsToSelect.forEach((column, index) => {
+      result += `${fromAlias}.${column} ${this._addIfLastIteration(
+        columnsToSelect,
+        index,
+        ', '
+      )}`;
+    });
+    result += `FROM ${tableName} as ${fromAlias} ${joinType} ${this._tableName} as ${onAlias} ON `;
+    Object.entries(columnsOn).forEach((key) => {
+      result += `${fromAlias}.${key[0]} = ${onAlias}.${columnsOn[key[0]]}`;
+    });
+
+    return result;
+  }
+
+  private _sequelizeUnion(
+    queries: Array<SqlWhereQuery>,
+    all: boolean
+  ): string | void {
+    if (!queries?.length) return;
+
+    let result = '';
+    queries.forEach((query, index) => {
+      result += `${this.createFindQuery(
+        query.columns,
+        query.condition,
+        query.limit,
+        query.tableName
+      )} ${this._addIfLastIteration(
+        queries,
+        index,
+        `UNION ${all ? ' ALL  ' : ''}`
+      )}`;
+    });
 
     return result;
   }
@@ -114,6 +192,6 @@ export class SqlService {
     index: number,
     strToAdd: string
   ) {
-    return index === arr.length - 1 ? "" : strToAdd;
+    return index === arr.length - 1 ? '' : strToAdd;
   }
 }

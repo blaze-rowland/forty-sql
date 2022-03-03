@@ -1,6 +1,6 @@
-import { Table } from "../table";
+import { Table } from '../table';
 
-class ProductSchema {
+export class ProductSchema {
   id?: number;
   name: string;
   price: number;
@@ -22,7 +22,7 @@ class ProductSchema {
   }
 }
 
-type ProductDataset = Array<ProductSchema>;
+export type ProductDataset = Array<ProductSchema>;
 
 export class ProductTable extends Table<ProductSchema> {
   constructor(tableName: string, products: ProductDataset = []) {

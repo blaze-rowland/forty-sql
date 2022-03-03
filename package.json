@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mysql2": "^2.3.3",
     "rxjs": "^7.5.4"
