@@ -1,5 +1,5 @@
-import mysql from 'mysql2';
-import { TableColumn } from '../models/sql.model';
+import mysql from "mysql2";
+import { TableColumn } from "../models/sql.model";
 export class SqlService {
   private _tableName: string;
   private _columns: Array<string>;
@@ -10,9 +10,9 @@ export class SqlService {
     this._tableName = tableName;
     this._columns = columns || [];
     this.pool = mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      database: 'forty',
+      host: "localhost",
+      user: "root",
+      database: "forty",
     });
   }
 
@@ -39,19 +39,19 @@ export class SqlService {
   }
 
   public createFindQuery(
-    columns: Array<string> = ['*'],
+    columns: Array<string> = ["*"],
     condition?: any,
     limit?: number
   ): string {
     return `SELECT ${columns} FROM ${this._tableName} ${
-      this._sequelizeWhere(condition) ?? ''
-    } ${limit ? 'LIMIT ' + limit : ''}`;
+      this._sequelizeWhere(condition) ?? ""
+    } ${limit ? "LIMIT " + limit : ""}`;
   }
 
   public createUpdateQuery(values: any, condition?: any) {
     const updateQuery = this._sequelizeColumns(values);
     return `UPDATE ${this._tableName} SET ${updateQuery} ${
-      this._sequelizeWhere(condition) ?? ''
+      this._sequelizeWhere(condition) ?? ""
     }`;
   }
 
@@ -60,32 +60,33 @@ export class SqlService {
   }
 
   private _sequelizeCreateColumns(columns: Array<TableColumn>) {
-    let result = '';
+    let result = "";
     columns.forEach((column, index) => {
-      console.log(column);
-      result += column.name + ' ';
-      result += column.type + ' ';
-      result += column.size ? `(${column.size}) ` : '';
-      result += column.default ? `DEFAULT '${column.default}'` : '';
+      result += column.name + " ";
+      result += column.type + " ";
+      result += column.size ? `(${column.size}) ` : "";
+      result += column.default ? `DEFAULT '${column.default}'` : "";
       result += column.primaryKey
-        ? `AUTO_INCREMENT, PRIMARY KEY (${column.name})`
-        : '';
+        ? `${column.autoIncrement ? "AUTO_INCREMENT," : ""} PRIMARY KEY (${
+            column.name
+          })`
+        : "";
       result += column.foreignKey
         ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
-        : '';
-      result += this._addIfLastIteration(columns, index, ', ');
+        : "";
+      result += this._addIfLastIteration(columns, index, ", ");
     });
 
     return result;
   }
 
   private _sequelizeColumns(values: any): string {
-    let result = '';
+    let result = "";
 
     const iterable = Object.keys(values);
     iterable.forEach(
       (key, i) =>
-        (result += `${key} = ? ${this._addIfLastIteration(iterable, i, ', ')}`)
+        (result += `${key} = ? ${this._addIfLastIteration(iterable, i, ", ")}`)
     );
 
     return result;
@@ -94,17 +95,16 @@ export class SqlService {
   private _sequelizeWhere(obj: any): string | void {
     if (!obj) return;
 
-    let result = 'WHERE ';
+    let result = "WHERE ";
     const iterable = Object.entries(obj);
     iterable.forEach(
       ([key, val], i) =>
         (result += `${key} = '${val}' ${this._addIfLastIteration(
           iterable,
           i,
-          ' AND '
+          " AND "
         )}`)
     );
-    console.log(result);
 
     return result;
   }
@@ -114,6 +114,6 @@ export class SqlService {
     index: number,
     strToAdd: string
   ) {
-    return index === arr.length - 1 ? '' : strToAdd;
+    return index === arr.length - 1 ? "" : strToAdd;
   }
 }

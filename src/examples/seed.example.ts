@@ -1,4 +1,4 @@
-import { SqlService } from '../services/sql.service';
+import { SqlService } from "../services/sql.service";
 
 export class Seeder {
   async init() {
@@ -7,28 +7,42 @@ export class Seeder {
   }
 
   private async _createUsers(): Promise<void> {
-    const sql = new SqlService('users');
+    const sql = new SqlService("users");
     await sql.createTableQuery([
-      { name: 'id', type: 'INT', size: 11, primaryKey: true, nullable: false },
-      { name: 'fullName', type: 'VARCHAR', size: 255, default: 'Testy Test' },
-      { name: 'dateOfBirth', type: 'DATETIME' },
+      {
+        name: "id",
+        type: "INT",
+        size: 11,
+        primaryKey: true,
+        autoIncrement: true,
+        nullable: false,
+      },
+      { name: "fullName", type: "VARCHAR", size: 255, default: "Testy Test" },
+      { name: "dateOfBirth", type: "DATETIME" },
     ]);
   }
 
   private async _createProducts(): Promise<void> {
-    const sql = new SqlService('products');
+    const sql = new SqlService("products");
     await sql.createTableQuery([
-      { name: 'id', type: 'INT', size: 11, primaryKey: true, nullable: false },
-      { name: 'name', type: 'VARCHAR', size: 255, default: 'Testy Test' },
-      { name: 'price', type: 'INT', size: 11 },
-      { name: 'createdAt', type: 'DATETIME' },
       {
-        name: 'createdBy',
-        type: 'INT',
+        name: "id",
+        type: "INT",
+        size: 11,
+        primaryKey: true,
+        autoIncrement: true,
+        nullable: false,
+      },
+      { name: "name", type: "VARCHAR", size: 255, default: "Testy Test" },
+      { name: "price", type: "INT", size: 11 },
+      { name: "createdAt", type: "DATETIME" },
+      {
+        name: "createdBy",
+        type: "INT",
         nullable: false,
         foreignKey: {
-          referenceId: 'id',
-          referenceTable: 'users',
+          referenceId: "id",
+          referenceTable: "users",
         },
       },
     ]);

@@ -1,11 +1,11 @@
-import { Table } from '../table';
+import { Table } from "../table";
 
 class ProductSchema {
   id?: number;
   name: string;
   price: number;
   createdAt: Date;
-  createdBy: number;
+  createdBy?: number;
 
   constructor(
     id: number,

@@ -1,5 +1,5 @@
-import { SqlService } from '../services/sql.service';
-import { Table } from '../table';
+import { SqlService } from "../services/sql.service";
+import { Table } from "../table";
 
 class UserSchema {
   id?: number;
