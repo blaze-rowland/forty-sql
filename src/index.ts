@@ -92,13 +92,13 @@ const productTable = new ProductTable('products');
   //     },
   //   })
   //   .subscribe({
-  //     next: (users) => {
+  //     next: (user) => {
   //       productTable
   //         .add({
   //           name: 'Pacifier',
   //           price: 5,
   //           createdAt: new Date(),
-  //           createdBy: users.id,
+  //           createdBy: user.id,
   //         })
   //         .subscribe((res) => console.log(res));
   //     },
