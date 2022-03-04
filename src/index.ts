@@ -19,7 +19,7 @@ const productTable = new ProductTable('products');
   --------------------------------------------------------------------
   */
   // userTable.add({
-  //   fullName: "Blaze Rowland",
+  //   fullName: 'Blaze Rowland',
   //   dateOfBirth: new Date(1997, 11, 14),
   // });
   // productTable.add({
@@ -43,7 +43,7 @@ const productTable = new ProductTable('products');
   //   .findOne({
   //     columns: ['id'],
   //     condition: {
-  //       fullName: 'Rylee Rowland',
+  //       fullName: 'Blaze Rowland',
   //     },
   //   })
   //   .subscribe((user) => console.log(user));
@@ -52,7 +52,12 @@ const productTable = new ProductTable('products');
     Update
   --------------------------------------------------------------------
   */
-  // userTable.update({ fullName: 'Rylee Rowland' }, { id: 1 });
+  // userTable
+  //   .update({
+  //     values: { fullName: 'Rylee Brown' },
+  //     condition: { id: 1 },
+  //   })
+  //   .subscribe((res) => console.log(res));
   /* 
   --------------------------------------------------------------------
     Find and Update
@@ -68,7 +73,10 @@ const productTable = new ProductTable('products');
   //   .subscribe({
   //     next: (user) =>
   //       userTable
-  //         .update({ fullName: 'Rylee R Rowland' }, { id: user.id })
+  //         .update({
+  //           values: { fullName: 'Forrest Rowland' },
+  //           condition: { id: user.id },
+  //         })
   //         .subscribe((res) => console.log(res)),
   //   });
   /* 
@@ -100,35 +108,44 @@ const productTable = new ProductTable('products');
     Delete
   --------------------------------------------------------------------
   */
-  // userTable.delete({ id: 1 });
+  // productTable.delete({ id: 1 });
   /* 
   --------------------------------------------------------------------
     Join Tables
   --------------------------------------------------------------------
   */
   // userTable
-  //   .join('INNER JOIN', productTable.tableName, ['id', 'name'], {
-  //     createdBy: 'id',
+  //   .join({
+  //     joinType: 'INNER JOIN',
+  //     tableName: productTable.tableName,
+  //     columnsToSelect: ['id', 'name'],
+  //     columnsOn: { createdBy: 'id' },
   //   })
-  //   .subscribe((res) => console.log('Inner Joined', res));
+  //   .subscribe((res) => console.log(res));
   // userTable
-  //   .join('LEFT JOIN', productTable.tableName, ['id', 'name'], {
-  //     createdBy: 'id',
+  //   .join({
+  //     joinType: 'LEFT JOIN',
+  //     tableName: productTable.tableName,
+  //     columnsToSelect: ['id', 'name'],
+  //     columnsOn: { createdBy: 'id' },
   //   })
-  //   .subscribe((res) => console.log('Left Joined', res));
+  //   .subscribe((res) => console.log(res));
   // userTable
-  //   .join('RIGHT JOIN', productTable.tableName, ['id', 'name'], {
-  //     createdBy: 'id',
+  //   .join({
+  //     joinType: 'RIGHT JOIN',
+  //     tableName: productTable.tableName,
+  //     columnsToSelect: ['id', 'name'],
+  //     columnsOn: { createdBy: 'id' },
   //   })
-  //   .subscribe((res) => console.log('Right Joined', res));
+  //   .subscribe((res) => console.log(res));
   /* 
   --------------------------------------------------------------------
     Union Tables
   --------------------------------------------------------------------
   */
   // userTable
-  //   .union(
-  //     [
+  //   .union({
+  //     queries: [
   //       {
   //         columns: ['id', 'fullName'],
   //         tableName: 'users',
@@ -138,7 +155,7 @@ const productTable = new ProductTable('products');
   //         tableName: 'products',
   //       },
   //     ],
-  //     true // Changes whether Union statement is UNION (false || not provided) or UNION ALL (true)
-  //   )
+  //     all: true, // Changes whether Union statement is UNION (false || not provided) or UNION ALL (true)
+  //   })
   //   .subscribe((res) => console.log(res));
 })();

@@ -1,6 +1,13 @@
 import mysql from 'mysql2';
 import dotenv from 'dotenv';
-import { SqlJoinType, TableColumn, SqlWhereQuery } from '../models/sql.model';
+import {
+  SqlJoinType,
+  TableColumn,
+  SqlWhereQuery,
+  SqlUpdateQuery,
+  SqlJoinQuery,
+  SqlUnionQuery,
+} from '../models/sql.model';
 
 dotenv.config();
 
@@ -54,35 +61,30 @@ export class SqlService {
     } ${limit ? 'LIMIT ' + limit : ''}`;
   }
 
-  public createUpdateQuery(values: any, condition?: any) {
-    const updateQuery = this._sequelizeColumns(values);
+  public createUpdateQuery(sqlQuery: SqlUpdateQuery) {
+    const updateQuery = this._sequelizeColumns(sqlQuery.values);
     return `UPDATE ${this._tableName} SET ${updateQuery} ${
-      this._sequelizeWhere(condition) ?? ''
+      this._sequelizeWhere(sqlQuery.condition) ?? ''
     }`;
   }
 
-  public createDeleteQuery(condition) {
+  public createDeleteQuery(condition: any) {
     return `DELETE FROM ${this._tableName} ${this._sequelizeWhere(condition)}`;
   }
 
-  public createJoinQuery(
-    joinType: SqlJoinType,
-    tableName: string,
-    columnsToSelect: Array<string>,
-    columnsOn: any
-  ): string {
+  public createJoinQuery(sqlQuery: SqlJoinQuery): string {
     const query = this._sequelizeJoin(
-      joinType,
-      tableName,
-      columnsToSelect,
-      columnsOn
+      sqlQuery.joinType,
+      sqlQuery.tableName,
+      sqlQuery.columnsToSelect,
+      sqlQuery.columnsOn
     );
 
     return `${query}`;
   }
 
-  public createUnionQuery(queries: Array<SqlWhereQuery>, all: boolean) {
-    const query = this._sequelizeUnion(queries, all);
+  public createUnionQuery(sqlQuery: SqlUnionQuery) {
+    const query = this._sequelizeUnion(sqlQuery);
     return `${query}`;
   }
 
@@ -164,23 +166,20 @@ export class SqlService {
     return result;
   }
 
-  private _sequelizeUnion(
-    queries: Array<SqlWhereQuery>,
-    all: boolean
-  ): string | void {
-    if (!queries?.length) return;
+  private _sequelizeUnion(sqlQuery: SqlUnionQuery): string | void {
+    if (!sqlQuery.queries?.length) return;
 
     let result = '';
-    queries.forEach((query, index) => {
+    sqlQuery.queries.forEach((query, index) => {
       result += `${this.createFindQuery(
         query.columns,
         query.condition,
         query.limit,
         query.tableName
       )} ${this._addIfLastIteration(
-        queries,
+        sqlQuery.queries,
         index,
-        `UNION ${all ? ' ALL  ' : ''}`
+        `UNION ${sqlQuery.all ? ' ALL  ' : ''}`
       )}`;
     });
 

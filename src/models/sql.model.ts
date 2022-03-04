@@ -61,4 +61,26 @@ export interface SqlWhereQuery {
   condition?: any;
   limit?: number;
   tableName?: string;
+  groupBy?: Array<string>;
+  orderBy?: Array<string>;
+  having?: string;
+  desc?: boolean;
+  asc?: boolean;
+}
+
+export interface SqlUpdateQuery {
+  values: any;
+  condition: any;
+}
+
+export interface SqlJoinQuery {
+  joinType: SqlJoinType;
+  tableName: string;
+  columnsToSelect: Array<string>;
+  columnsOn: any;
+}
+
+export interface SqlUnionQuery {
+  queries: Array<SqlWhereQuery>;
+  all: boolean;
 }

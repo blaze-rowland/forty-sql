@@ -1,5 +1,10 @@
 import { firstValueFrom, Observable, Subject } from 'rxjs';
-import { SqlJoinType, SqlWhereQuery } from './models/sql.model';
+import {
+  SqlJoinQuery,
+  SqlUnionQuery,
+  SqlUpdateQuery,
+  SqlWhereQuery,
+} from './models/sql.model';
 import { SqlService } from './services/sql.service';
 
 type Dataset<T> = Array<T>;
@@ -55,13 +60,13 @@ export class Table<T> {
     return result.asObservable();
   }
 
-  public update(values: any, condition: any): Observable<any> {
-    const query = this._sqlService.createUpdateQuery(values, condition);
+  public update(sqlQuery: SqlUpdateQuery): Observable<any> {
+    const query = this._sqlService.createUpdateQuery(sqlQuery);
     const result = new Subject();
 
     this._sqlService.pool.query(
       query,
-      Object.values(values),
+      Object.values(sqlQuery.values),
       (err, rows, fields) => {
         if (err) console.error(err);
         result.next(rows);
@@ -83,18 +88,8 @@ export class Table<T> {
     return result.asObservable();
   }
 
-  public join(
-    joinType: SqlJoinType,
-    tableName: string,
-    columnsToSelect: Array<string>,
-    columnsOn: any
-  ): Observable<any> {
-    const query = this._sqlService.createJoinQuery(
-      joinType,
-      tableName,
-      columnsToSelect,
-      columnsOn
-    );
+  public join(sqlQuery: SqlJoinQuery): Observable<any> {
+    const query = this._sqlService.createJoinQuery(sqlQuery);
     const result = new Subject();
 
     this._sqlService.pool.query(query, (err, rows, fields) => {
@@ -106,8 +101,8 @@ export class Table<T> {
     return result.asObservable();
   }
 
-  public union(queries: Array<SqlWhereQuery>, all = false): Observable<any> {
-    const query = this._sqlService.createUnionQuery(queries, all);
+  public union(sqlQuery: SqlUnionQuery): Observable<any> {
+    const query = this._sqlService.createUnionQuery(sqlQuery);
     const result = new Subject();
 
     this._sqlService.pool.query(query, (err, rows, fields) => {
