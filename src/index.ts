@@ -108,7 +108,7 @@ const productTable = new ProductTable('products');
     Delete
   --------------------------------------------------------------------
   */
-  // productTable.delete({ id: 1 });
+  // productTable.delete({ id: 1 }).subscribe((res) => console.log(res));
   /* 
   --------------------------------------------------------------------
     Join Tables
