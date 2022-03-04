@@ -23,12 +23,7 @@ export class Table<T> {
   }
 
   public find(sqlQuery: SqlWhereQuery): Observable<Dataset<T>> {
-    const query = this._sqlService.createFindQuery(
-      sqlQuery.columns,
-      sqlQuery.condition,
-      sqlQuery.limit,
-      sqlQuery.tableName
-    );
+    const query = this._sqlService.createFindQuery(sqlQuery);
     const result = new Subject<Dataset<T>>();
 
     this._sqlService.pool.query(query, (err, rows: Dataset<T>, fields) => {

@@ -50,15 +50,12 @@ export class SqlService {
     return `INSERT INTO ${this._tableName} SET ?`;
   }
 
-  public createFindQuery(
-    columns: Array<string> = ['*'],
-    condition?: any,
-    limit?: number,
-    tableName?: string
-  ): string {
-    return `SELECT ${columns} FROM ${tableName || this._tableName} ${
-      this._sequelizeWhere(condition) ?? ''
-    } ${limit ? 'LIMIT ' + limit : ''}`;
+  public createFindQuery(sqlQuery: SqlWhereQuery): string {
+    return `SELECT ${sqlQuery.columns} FROM ${
+      sqlQuery.tableName || this._tableName
+    } ${this._sequelizeWhere(sqlQuery.condition) ?? ''} ${
+      sqlQuery.limit ? 'LIMIT ' + sqlQuery.limit : ''
+    }`;
   }
 
   public createUpdateQuery(sqlQuery: SqlUpdateQuery) {
@@ -171,12 +168,7 @@ export class SqlService {
 
     let result = '';
     sqlQuery.queries.forEach((query, index) => {
-      result += `${this.createFindQuery(
-        query.columns,
-        query.condition,
-        query.limit,
-        query.tableName
-      )} ${this._addIfLastIteration(
+      result += `${this.createFindQuery(query)} ${this._addIfLastIteration(
         sqlQuery.queries,
         index,
         `UNION ${sqlQuery.all ? ' ALL  ' : ''}`
