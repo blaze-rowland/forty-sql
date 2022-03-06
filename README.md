@@ -4,12 +4,22 @@ A MySQL Library for Node.js
 
 Currently creating this as a hobby project, but we'll see where it goes.
 
-## Get it running
+## Installing the Project
 
-1. Clone the repository
-2. Run `npm install` or `yarn install`
+1. `npm install @forty-boy/sql` OR `yarn add @forty-boy/sql`
+2. `const Forty = require('@forty-boy/sql')` \
+   OR \
+   `import Forty from '@forty-boy/sql'` \
+   OR \
+   `import { Table } from '@forty-boy/sql'`
+3. Create `.env` file at root with values for corresponding keys in `.env-example` found [here](https://github.com/blaze-rowland/forty-sql/blob/main/.env-example)
+
+## Cloning the Project
+
+1. Clone the repository [here](https://github.com/blaze-rowland/forty-sql.git)
+2. Run `npm install` OR `yarn install`
 3. Create `.env` file at root with values for corresponding keys in `.env-example`
-4. Run `npm run dev` or `yarn run dev`
+4. Run `npm run dev` OR `yarn run dev`
 
 ## Examples
 

@@ -19,7 +19,6 @@ module.exports = {
   rules: {
     'no-console': 'off',
     'comma-dangle': 'off',
-    'react/jsx-filename-extension': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     quotes: ['error', 'single', { allowTemplateLiterals: true }],
   },

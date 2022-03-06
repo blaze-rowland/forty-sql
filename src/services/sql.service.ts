@@ -143,8 +143,6 @@ export class SqlService {
     result += query.having ? `HAVING ${query.having} ` : '';
     result += query.limit ? `LIMIT ${query.limit} ` : '';
 
-    console.log(result);
-
     return result;
   }
 
