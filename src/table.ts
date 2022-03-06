@@ -9,7 +9,7 @@ import { SqlService } from './services/sql.service';
 
 type Dataset<T> = Array<T>;
 
-export class Table<T> {
+class Table<T> {
   private _columns: Array<string>;
   private _sqlService: SqlService;
   public tableName: string;
@@ -109,3 +109,5 @@ export class Table<T> {
     return result.asObservable();
   }
 }
+
+export = Table;
