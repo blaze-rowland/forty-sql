@@ -9,7 +9,7 @@ import { SqlService } from './services/sql.service';
 
 type Dataset<T> = Array<T>;
 
-class Table<T> {
+export abstract class Table<T> {
   private _columns: Array<string>;
   private _sqlService: SqlService;
   public tableName: string;
@@ -108,6 +108,16 @@ class Table<T> {
 
     return result.asObservable();
   }
-}
 
-export = Table;
+  public rawQuery(sql: string): Observable<any> {
+    const result = new Subject();
+
+    this._sqlService.pool.query(sql, (err, rows, fields) => {
+      if (err) console.error(err);
+
+      result.next(rows);
+    });
+
+    return result.asObservable();
+  }
+}

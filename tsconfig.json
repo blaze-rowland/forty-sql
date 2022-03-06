@@ -3,6 +3,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Node 12",
   "compilerOptions": {
+    "declaration": true,
     "module": "commonjs",
     "target": "es2019",
     "strict": true,

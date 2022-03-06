@@ -2,7 +2,11 @@
   "name": "@forty/sql",
   "version": "0.0.1",
   "description": "A MySQL Library for Node.js",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "webpack --mode production",
     "dev": "nodemon"

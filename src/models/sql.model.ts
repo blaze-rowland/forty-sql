@@ -66,6 +66,8 @@ export interface SqlWhereQuery {
   having?: string;
   desc?: boolean;
   asc?: boolean;
+  isNull?: boolean;
+  operator?: 'AND' | 'OR' | 'NOT';
 }
 
 export interface SqlUpdateQuery {

@@ -6,7 +6,7 @@ import users from './users';
 const userTable = new UserTable('users', users);
 const productTable = new ProductTable('products');
 
-export = async () => {
+export const RunExample = async () => {
   /* 
   --------------------------------------------------------------------
     Create Tables 

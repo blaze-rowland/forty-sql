@@ -51,11 +51,9 @@ export class SqlService {
   }
 
   public createFindQuery(sqlQuery: SqlWhereQuery): string {
-    return `SELECT ${sqlQuery.columns} FROM ${
+    return `SELECT ${sqlQuery.columns || '*'} FROM ${
       sqlQuery.tableName || this._tableName
-    } ${this._sequelizeWhere(sqlQuery.condition) ?? ''} ${
-      sqlQuery.limit ? 'LIMIT ' + sqlQuery.limit : ''
-    }`;
+    } ${this._sequelizeWhere(sqlQuery) ?? ''}`;
   }
 
   public createUpdateQuery(sqlQuery: SqlUpdateQuery) {
@@ -118,19 +116,34 @@ export class SqlService {
     return result;
   }
 
-  private _sequelizeWhere(obj: any): string | void {
-    if (!obj) return;
+  private _sequelizeWhere(query: SqlWhereQuery): string | void {
+    if (!query) return;
 
     let result = 'WHERE ';
-    const iterable = Object.entries(obj);
-    iterable.forEach(
-      ([key, val], i) =>
-        (result += `${key} = '${val}' ${this._addIfLastIteration(
-          iterable,
-          i,
-          ' AND '
-        )}`)
-    );
+    const conditionArray = Object.entries(query.condition);
+    conditionArray.forEach(([key, value], index) => {
+      result += `${key} = '${value}' ${this._addIfLastIteration(
+        conditionArray,
+        index,
+        ` ${query.operator ? query.operator : 'AND'} `
+      )}`;
+    });
+    result +=
+      query.isNull == false
+        ? ` IS NOT NULL `
+        : query.isNull == true
+        ? ` IS NULL `
+        : '';
+    result += query.groupBy ? `GROUP BY ${query.groupBy} ` : '';
+    result += query.orderBy
+      ? `ORDER BY ${query.orderBy} ${query.asc ? 'ASC ' : ''} ${
+          query.desc ? 'DESC ' : ''
+        }`
+      : '';
+    result += query.having ? `HAVING ${query.having} ` : '';
+    result += query.limit ? `LIMIT ${query.limit} ` : '';
+
+    console.log(result);
 
     return result;
   }
