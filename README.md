@@ -21,6 +21,13 @@ Currently creating this as a hobby project, but we'll see where it goes.
 3. Create `.env` file at root with values for corresponding keys in `.env-example`
 4. Run `npm run dev` OR `yarn run dev`
 
+## Changelog
+
+### Version 1.0.1
+
+- [Can now run find() on a Table class to return all results](https://github.com/blaze-rowland/forty-sql/issues/2)
+- [Can now create Unique columns when creating a table](https://github.com/blaze-rowland/forty-sql/issues/1)
+
 ## Examples
 
 ### Creating a Table Schema

@@ -1,9 +1,20 @@
 {
   "name": "@forty-boy/sql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A MySQL Library for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "keywords": [
+    "sql",
+    "mysql",
+    "client",
+    "server",
+    "query",
+    "database",
+    "db",
+    "querybuilder",
+    "builder"
+  ],
   "files": [
     "lib"
   ],
@@ -24,7 +35,6 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "dotenv": "^16.0.0",
-    "express": "^4.17.3",
     "mysql2": "^2.3.3",
     "rxjs": "^7.5.4"
   },

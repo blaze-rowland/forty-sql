@@ -54,6 +54,7 @@ export interface TableColumn {
   primaryKey?: boolean;
   foreignKey?: ForeignKeyConstraint;
   autoIncrement?: boolean;
+  unique?: boolean;
 }
 
 export interface SqlWhereQuery {

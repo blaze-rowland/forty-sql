@@ -50,7 +50,9 @@ export class SqlService {
     return `INSERT INTO ${this._tableName} SET ?`;
   }
 
-  public createFindQuery(sqlQuery: SqlWhereQuery): string {
+  public createFindQuery(sqlQuery?: SqlWhereQuery): string {
+    if (!sqlQuery) return `SELECT * FROM ${this._tableName}`;
+
     return `SELECT ${sqlQuery.columns || '*'} FROM ${
       sqlQuery.tableName || this._tableName
     } ${this._sequelizeWhere(sqlQuery) ?? ''}`;
@@ -98,6 +100,7 @@ export class SqlService {
       result += column.foreignKey
         ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
         : '';
+      result += column.unique ? ' UNIQUE ' : '';
       result += this._addIfLastIteration(columns, index, ', ');
     });
 

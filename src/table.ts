@@ -22,7 +22,7 @@ export abstract class Table<T> {
     this._sqlService = new SqlService(this.tableName, this._columns);
   }
 
-  public find(sqlQuery: SqlWhereQuery): Observable<Dataset<T>> {
+  public find(sqlQuery?: SqlWhereQuery): Observable<Dataset<T>> {
     const query = this._sqlService.createFindQuery(sqlQuery);
     const result = new Subject<Dataset<T>>();
 
