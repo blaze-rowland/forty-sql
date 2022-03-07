@@ -23,6 +23,11 @@ Currently creating this as a hobby project, but we'll see where it goes.
 
 ## Changelog
 
+### Version 1.0.2
+
+- [Can now run find() on a Table class with just the columns you want to receive with no condition arguments](https://github.com/blaze-rowland/forty-sql/issues/3)
+  - E.g. `userTable.find({ columns: ['id', 'createdAt'] });`
+
 ### Version 1.0.1
 
 - [Can now run find() on a Table class to return all results](https://github.com/blaze-rowland/forty-sql/issues/2)

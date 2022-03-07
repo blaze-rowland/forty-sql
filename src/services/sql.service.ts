@@ -120,7 +120,8 @@ export class SqlService {
   }
 
   private _sequelizeWhere(query: SqlWhereQuery): string | void {
-    if (!query) return;
+    if (!query || !query.condition)
+      return query.limit ? ` LIMIT ${query.limit}` : '';
 
     let result = 'WHERE ';
     const conditionArray = Object.entries(query.condition);
