@@ -23,6 +23,12 @@ Currently creating this as a hobby project, but we'll see where it goes.
 
 ## Changelog
 
+### Version 1.0.3
+
+- [Can now run find with just condition](https://github.com/blaze-rowland/forty-sql/issues/6)
+- [Fixed update query updating all rows](https://github.com/blaze-rowland/forty-sql/issues/4)
+- [Fixed delete query deleting all rows](https://github.com/blaze-rowland/forty-sql/issues/5)
+
 ### Version 1.0.2
 
 - [Can now run find() on a Table class with just the columns you want to receive with no condition arguments](https://github.com/blaze-rowland/forty-sql/issues/3)

@@ -61,12 +61,14 @@ export class SqlService {
   public createUpdateQuery(sqlQuery: SqlUpdateQuery) {
     const updateQuery = this._sequelizeColumns(sqlQuery.values);
     return `UPDATE ${this._tableName} SET ${updateQuery} ${
-      this._sequelizeWhere(sqlQuery.condition) ?? ''
+      this._sequelizeWhere(sqlQuery as SqlWhereQuery) ?? ''
     }`;
   }
 
   public createDeleteQuery(condition: any) {
-    return `DELETE FROM ${this._tableName} ${this._sequelizeWhere(condition)}`;
+    return `DELETE FROM ${this._tableName} ${this._sequelizeWhere({
+      condition,
+    })}`;
   }
 
   public createJoinQuery(sqlQuery: SqlJoinQuery): string {

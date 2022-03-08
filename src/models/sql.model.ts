@@ -58,7 +58,7 @@ export interface TableColumn {
 }
 
 export interface SqlWhereQuery {
-  columns: Array<string>;
+  columns?: Array<string>;
   condition?: any;
   limit?: number;
   tableName?: string;
