@@ -1,4 +1,4 @@
-# @Forty/SQL
+# @Forty-boy/SQL
 
 A MySQL Library for Node.js
 
@@ -22,6 +22,10 @@ Currently creating this as a hobby project, but we'll see where it goes.
 4. Run `npm run dev` OR `yarn run dev`
 
 ## Changelog
+
+### Version 1.0.4
+
+- [Fixed issue with Join method](https://github.com/blaze-rowland/forty-sql/issues/7)
 
 ### Version 1.0.3
 
@@ -209,34 +213,61 @@ productTable.delete({ id: 1 });
 ### Join Tables
 
 ```
-userTable
+  productTable
   .join({
     joinType: 'INNER JOIN',
-    tableName: productTable.tableName,
-    columnsToSelect: ['id', 'name'],
-    columnsOn: { createdBy: 'id' },
+    columnsToSelect: [
+      { column: 'name' },
+      { column: 'price' },
+      { column: 'fullName', as: 'userName', table: userTable.tableName },
+      { column: 'dateOfBirth', table: userTable.tableName },
+    ],
+    columnsOn: [
+      {
+        from: { column: 'id', table: userTable.tableName },
+        to: { column: 'createdBy', table: productTable.tableName },
+      },
+    ],
   })
   .subscribe((res) => console.log(res));
 ```
 
 ```
-userTable
+  productTable
   .join({
     joinType: 'LEFT JOIN',
-    tableName: productTable.tableName,
-    columnsToSelect: ['id', 'name'],
-    columnsOn: { createdBy: 'id' },
+    columnsToSelect: [
+      { column: 'name' },
+      { column: 'price' },
+      { column: 'fullName', as: 'userName', table: userTable.tableName },
+      { column: 'dateOfBirth', table: userTable.tableName },
+    ],
+    columnsOn: [
+      {
+        from: { column: 'id', table: userTable.tableName },
+        to: { column: 'createdBy', table: productTable.tableName },
+      },
+    ],
   })
   .subscribe((res) => console.log(res));
 ```
 
 ```
-userTable
+  productTable
   .join({
     joinType: 'RIGHT JOIN',
-    tableName: productTable.tableName,
-    columnsToSelect: ['id', 'name'],
-    columnsOn: { createdBy: 'id' },
+    columnsToSelect: [
+      { column: 'name' },
+      { column: 'price' },
+      { column: 'fullName', as: 'userName', table: userTable.tableName },
+      { column: 'dateOfBirth', table: userTable.tableName },
+    ],
+    columnsOn: [
+      {
+        from: { column: 'id', table: userTable.tableName },
+        to: { column: 'createdBy', table: productTable.tableName },
+      },
+    ],
   })
   .subscribe((res) => console.log(res));
 ```

@@ -1,49 +1,49 @@
-const path = require("path");
+const path = require('path');
 
-const outputDirectory = "lib";
+const outputDirectory = 'lib';
 
 module.exports = {
-  entry: ["babel-polyfill", "./src/index.ts"],
+  entry: ['babel-polyfill', './src/index.ts'],
   output: {
     path: path.join(__dirname, outputDirectory),
-    filename: "./[name].bundle.js",
+    filename: './[name].bundle.js',
   },
-  devtool: "source-map",
+  devtool: 'source-map',
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
         },
       },
       {
         test: /\.tsx?$/,
         use: [
           {
-            loader: "awesome-typescript-loader",
+            loader: 'awesome-typescript-loader',
           },
         ],
         exclude: /node_modules/,
       },
       {
-        enforce: "pre",
+        enforce: 'pre',
         test: /\.js$/,
-        loader: "source-map-loader",
+        loader: 'source-map-loader',
       },
     ],
   },
   resolve: {
-    extensions: ["*", ".ts", ".tsx", ".js", ".jsx", ".json"],
+    extensions: ['*', '.ts', '.tsx', '.js', '.jsx', '.json'],
   },
   devServer: {
     port: 3000,
     open: true,
     hot: true,
     proxy: {
-      "/api/**": {
-        target: "http://localhost:8050",
+      '/api/**': {
+        target: 'http://localhost:8050',
         secure: false,
         changeOrigin: true,
       },

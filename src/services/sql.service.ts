@@ -5,8 +5,11 @@ import {
   TableColumn,
   SqlWhereQuery,
   SqlUpdateQuery,
-  SqlJoinQuery,
   SqlUnionQuery,
+  SqlJoinQuery,
+  ColumnToSelect,
+  ColumnOn,
+  JoinOrderBy,
 } from '../models/sql.model';
 
 dotenv.config();
@@ -74,12 +77,57 @@ export class SqlService {
   public createJoinQuery(sqlQuery: SqlJoinQuery): string {
     const query = this._sequelizeJoin(
       sqlQuery.joinType,
-      sqlQuery.tableName,
+      sqlQuery.columnsOn,
       sqlQuery.columnsToSelect,
-      sqlQuery.columnsOn
+      sqlQuery.orderBy,
+      sqlQuery.asc
     );
-
     return `${query}`;
+  }
+
+  private _sequelizeJoin(
+    joinType: SqlJoinType,
+    columnsOn: any,
+    columnsToSelect: Array<ColumnToSelect>,
+    orderBy?: Array<JoinOrderBy>,
+    asc?: boolean
+  ): string | void {
+    if (!joinType) return;
+
+    let result = 'SELECT ';
+
+    columnsToSelect.forEach((column: ColumnToSelect, index: number) => {
+      result += `${
+        column.table
+          ? `${column.table}.${column.column}`
+          : `${this._tableName}.${column.column}`
+      } ${column?.as ? `as ${column.as}` : ''} ${this._addIfLastIteration(
+        columnsToSelect,
+        index,
+        ', '
+      )}`;
+    });
+
+    result += `FROM ${this._tableName} `;
+
+    columnsOn.forEach((column: ColumnOn) => {
+      result += `${joinType} ${column.from.table} ON ${column.from.table}.${column.from.column} = ${column.to.table}.${column.to.column} `;
+    });
+
+    if (orderBy?.length) result += 'ORDER BY ';
+
+    orderBy?.forEach((order: JoinOrderBy, index: number) => {
+      result += `${order.table}.${order.column} ${this._addIfLastIteration(
+        orderBy,
+        index,
+        ', '
+      )}`;
+    });
+
+    if (orderBy?.length && (asc === true || asc === false))
+      result += `${asc === true ? 'ASC' : asc === false ? 'DESC' : ''}`;
+
+    return result;
   }
 
   public createUnionQuery(sqlQuery: SqlUnionQuery) {
@@ -148,34 +196,6 @@ export class SqlService {
       : '';
     result += query.having ? `HAVING ${query.having} ` : '';
     result += query.limit ? `LIMIT ${query.limit} ` : '';
-
-    return result;
-  }
-
-  private _sequelizeJoin(
-    joinType: SqlJoinType,
-    tableName: string,
-    columnsToSelect: Array<string>,
-    columnsOn: { key: string; value: string }
-  ): string | void {
-    if (!tableName || !columnsOn || !columnsOn) return;
-
-    let result = 'SELECT ';
-
-    const fromAlias = tableName[0];
-    const onAlias = this._tableName[0];
-
-    columnsToSelect.forEach((column, index) => {
-      result += `${fromAlias}.${column} ${this._addIfLastIteration(
-        columnsToSelect,
-        index,
-        ', '
-      )}`;
-    });
-    result += `FROM ${tableName} as ${fromAlias} ${joinType} ${this._tableName} as ${onAlias} ON `;
-    Object.entries(columnsOn).forEach((key) => {
-      result += `${fromAlias}.${key[0]} = ${onAlias}.${columnsOn[key[0]]}`;
-    });
 
     return result;
   }

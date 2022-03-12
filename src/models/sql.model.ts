@@ -57,6 +57,26 @@ export interface TableColumn {
   unique?: boolean;
 }
 
+export interface ColumnToSelect {
+  column: string;
+  as?: string;
+  table?: string;
+}
+
+export interface ColumnOn {
+  from: OnTableColumn;
+  to: OnTableColumn;
+}
+export interface OnTableColumn {
+  column: string;
+  table: string;
+}
+
+export interface JoinOrderBy {
+  column: string;
+  table: string;
+}
+
 export interface SqlWhereQuery {
   columns?: Array<string>;
   condition?: any;
@@ -78,9 +98,10 @@ export interface SqlUpdateQuery {
 
 export interface SqlJoinQuery {
   joinType: SqlJoinType;
-  tableName: string;
-  columnsToSelect: Array<string>;
-  columnsOn: any;
+  columnsToSelect: Array<ColumnToSelect>;
+  columnsOn: Array<ColumnOn>;
+  orderBy?: Array<JoinOrderBy>;
+  asc?: boolean;
 }
 
 export interface SqlUnionQuery {

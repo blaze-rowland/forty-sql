@@ -114,28 +114,55 @@ export const RunExample = async () => {
     Join Tables
   --------------------------------------------------------------------
   */
-  // userTable
+  // productTable
   //   .join({
   //     joinType: 'INNER JOIN',
-  //     tableName: productTable.tableName,
-  //     columnsToSelect: ['id', 'name'],
-  //     columnsOn: { createdBy: 'id' },
+  //     columnsToSelect: [
+  //       { column: 'name' },
+  //       { column: 'price' },
+  //       { column: 'fullName', as: 'userName', table: userTable.tableName },
+  //       { column: 'dateOfBirth', table: userTable.tableName },
+  //     ],
+  //     columnsOn: [
+  //       {
+  //         from: { column: 'id', table: userTable.tableName },
+  //         to: { column: 'createdBy', table: productTable.tableName },
+  //       },
+  //     ],
   //   })
   //   .subscribe((res) => console.log(res));
-  // userTable
+  // productTable
   //   .join({
   //     joinType: 'LEFT JOIN',
-  //     tableName: productTable.tableName,
-  //     columnsToSelect: ['id', 'name'],
-  //     columnsOn: { createdBy: 'id' },
+  //     columnsToSelect: [
+  //       { column: 'name' },
+  //       { column: 'price' },
+  //       { column: 'fullName', as: 'userName', table: userTable.tableName },
+  //       { column: 'dateOfBirth', table: userTable.tableName },
+  //     ],
+  //     columnsOn: [
+  //       {
+  //         from: { column: 'id', table: userTable.tableName },
+  //         to: { column: 'createdBy', table: productTable.tableName },
+  //       },
+  //     ],
   //   })
   //   .subscribe((res) => console.log(res));
-  // userTable
+  // productTable
   //   .join({
   //     joinType: 'RIGHT JOIN',
-  //     tableName: productTable.tableName,
-  //     columnsToSelect: ['id', 'name'],
-  //     columnsOn: { createdBy: 'id' },
+  //     columnsToSelect: [
+  //       { column: 'name' },
+  //       { column: 'price' },
+  //       { column: 'fullName', as: 'userName', table: userTable.tableName },
+  //       { column: 'dateOfBirth', table: userTable.tableName },
+  //     ],
+  //     columnsOn: [
+  //       {
+  //         from: { column: 'id', table: userTable.tableName },
+  //         to: { column: 'createdBy', table: productTable.tableName },
+  //       },
+  //     ],
   //   })
   //   .subscribe((res) => console.log(res));
   /* 
