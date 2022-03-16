@@ -1,10 +1,14 @@
 import { ProductTable } from './product.example';
 import { UserTable } from './user.example';
 import { Seeder } from './seed.example';
+import { SqlService } from '../services/sql.service';
 import users from './users';
 
 const userTable = new UserTable('users', users);
 const productTable = new ProductTable('products');
+
+const usersSqlService = new SqlService(userTable.tableName);
+const productsSqlService = new SqlService(productTable.tableName);
 
 export const RunExample = async () => {
   /* 
@@ -185,4 +189,46 @@ export const RunExample = async () => {
   //     all: true, // Changes whether Union statement is UNION (false || not provided) or UNION ALL (true)
   //   })
   //   .subscribe((res) => console.log(res));
+  /* 
+  --------------------------------------------------------------------
+    Alter Table
+  --------------------------------------------------------------------
+  */
+  // await usersSqlService.alterTableQuery({
+  //   columnsToAdd: [
+  //     {
+  //       name: 'lastName',
+  //       type: 'VARCHAR',
+  //       size: 255,
+  //     },
+  //     {
+  //       name: 'location',
+  //       type: 'VARCHAR',
+  //       size: 255,
+  //     },
+  //   ],
+  // });
+  // await usersSqlService.alterTableQuery({
+  //   columnsToAlter: [
+  //     {
+  //       name: 'fullName',
+  //       newName: 'firstName',
+  //       type: 'VARCHAR',
+  //       size: 255,
+  //     },
+  //   ],
+  // });
+  // await usersSqlService.alterTableQuery({
+  //   columnsToRemove: [
+  //     {
+  //       name: 'location',
+  //     },
+  //   ],
+  // });
+  /* 
+  --------------------------------------------------------------------
+    Drop Table
+  --------------------------------------------------------------------
+  */
+  // productsSqlService.dropTable();
 };

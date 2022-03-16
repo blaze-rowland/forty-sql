@@ -1,6 +1,6 @@
 {
   "name": "@forty-boy/sql",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A MySQL Library for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

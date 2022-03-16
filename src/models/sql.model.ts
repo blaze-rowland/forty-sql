@@ -47,7 +47,7 @@ export interface ForeignKeyConstraint {
 }
 export interface TableColumn {
   name: string;
-  type: SqlDataType;
+  type?: SqlDataType;
   size?: number;
   default?: string;
   nullable?: boolean;
@@ -55,6 +55,10 @@ export interface TableColumn {
   foreignKey?: ForeignKeyConstraint;
   autoIncrement?: boolean;
   unique?: boolean;
+}
+
+export interface ModifyTableColumn extends TableColumn {
+  newName?: string;
 }
 
 export interface ColumnToSelect {
@@ -107,4 +111,10 @@ export interface SqlJoinQuery {
 export interface SqlUnionQuery {
   queries: Array<SqlWhereQuery>;
   all: boolean;
+}
+
+export interface SqlAlterTableQuery {
+  columnsToAdd?: Array<TableColumn>;
+  columnsToAlter?: Array<ModifyTableColumn>;
+  columnsToRemove?: Array<TableColumn>;
 }

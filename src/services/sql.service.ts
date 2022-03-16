@@ -10,6 +10,8 @@ import {
   ColumnToSelect,
   ColumnOn,
   JoinOrderBy,
+  SqlAlterTableQuery,
+  ModifyTableColumn,
 } from '../models/sql.model';
 
 dotenv.config();
@@ -43,6 +45,41 @@ export class SqlService {
 
           resolve(rows);
         });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  public alterTableQuery(sqlQuery: SqlAlterTableQuery): Promise<any> {
+    const query = `ALTER TABLE ${this._tableName} ${this._sequelizeAlterColumns(
+      sqlQuery
+    )}`;
+
+    return new Promise((resolve, reject) => {
+      try {
+        this.pool.query(query, (err, rows, fields) => {
+          if (err) reject(err);
+
+          resolve(rows);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  public dropTable(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.pool.query(
+          `DROP TABLE ${this._tableName}`,
+          (err, rows, fields) => {
+            if (err) reject(err);
+
+            resolve(rows);
+          }
+        );
       } catch (err) {
         reject(err);
       }
@@ -135,25 +172,61 @@ export class SqlService {
     return `${query}`;
   }
 
+  private _sequelizeAlterColumns(sqlQuery: SqlAlterTableQuery): string {
+    const { columnsToAdd, columnsToAlter, columnsToRemove } = sqlQuery;
+    let result = '';
+
+    columnsToAdd &&
+      columnsToAdd?.forEach((column, index) => {
+        result += 'ADD ';
+        result += this._sequelizeCreateColumn(column);
+        result += this._addIfLastIteration(columnsToAdd, index, ', ');
+      });
+
+    columnsToAlter &&
+      columnsToAlter?.forEach((column, index) => {
+        if (columnsToAdd?.length) result += ', ';
+        result += this._sequelizeCreateColumn(column);
+        result += this._addIfLastIteration(columnsToAlter, index, ', ');
+      });
+
+    columnsToRemove &&
+      columnsToRemove?.forEach((column, index) => {
+        if (columnsToAdd?.length || columnsToAlter?.length) result += ', ';
+        result += `DROP COLUMN ${column.name}`;
+        result += this._addIfLastIteration(columnsToRemove, index, ', ');
+      });
+
+    return result;
+  }
+
+  private _sequelizeCreateColumn(column: ModifyTableColumn) {
+    let result = '';
+
+    result += column?.newName ? ' CHANGE ' : '';
+    result += column.name + ' ';
+    result += column?.newName ? column.newName + ' ' : '';
+    result += column.type ? column.type + ' ' : '';
+    result += column.size ? `(${column.size}) ` : '';
+    result += column.default ? `DEFAULT '${column.default}'` : '';
+    result += column.primaryKey
+      ? `${column.autoIncrement ? 'AUTO_INCREMENT,' : ''} PRIMARY KEY (${
+          column.name
+        })`
+      : '';
+    result += column.foreignKey
+      ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
+      : '';
+    result += column.unique ? ' UNIQUE ' : '';
+    return result;
+  }
+
   private _sequelizeCreateColumns(columns: Array<TableColumn>) {
     let result = '';
     columns.forEach((column, index) => {
-      result += column.name + ' ';
-      result += column.type + ' ';
-      result += column.size ? `(${column.size}) ` : '';
-      result += column.default ? `DEFAULT '${column.default}'` : '';
-      result += column.primaryKey
-        ? `${column.autoIncrement ? 'AUTO_INCREMENT,' : ''} PRIMARY KEY (${
-            column.name
-          })`
-        : '';
-      result += column.foreignKey
-        ? `, FOREIGN KEY (${column.name}) REFERENCES ${column.foreignKey.referenceTable}(${column.foreignKey.referenceId})`
-        : '';
-      result += column.unique ? ' UNIQUE ' : '';
+      result += this._sequelizeCreateColumn(column);
       result += this._addIfLastIteration(columns, index, ', ');
     });
-
     return result;
   }
 

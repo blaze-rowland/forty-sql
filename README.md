@@ -23,6 +23,11 @@ Currently creating this as a hobby project, but we'll see where it goes.
 
 ## Changelog
 
+### Version 1.0.5
+
+- [SqlService can now drop tables](https://github.com/blaze-rowland/forty-sql/issues/9)
+- [SqlService can now alter tables](https://github.com/blaze-rowland/forty-sql/issues/8)
+
 ### Version 1.0.4
 
 - [Fixed issue with Join method](https://github.com/blaze-rowland/forty-sql/issues/7)
@@ -292,4 +297,92 @@ userTable
     all: true, // Changes whether Union statement is UNION (false || not provided) or UNION ALL (true)
   })
   .subscribe((res) => console.log(res));
+```
+
+### Alter Tables
+
+Create an instance of the SQL Service
+
+```
+const sqlService = new SqlService('users')
+```
+
+Add Columns:
+
+```
+await sqlService.alterTableQuery({
+  columnsToAdd: [
+    {
+      name: 'location',
+      type: 'VARCHAR',
+      size: 255,
+    },
+  ],
+});
+```
+
+Alter Columns:
+
+```
+await sqlService.alterTableQuery({
+  columnsToAlter: [
+    {
+      name: 'firstName',
+      newName: 'fullName',
+      type: 'VARCHAR',
+      size: 255,
+    },
+  ],
+});
+```
+
+Remove Columns:
+
+```
+await sqlService.alterTableQuery({
+  columnsToRemove: [
+    {
+      name: 'lastName',
+    },
+  ],
+});
+```
+
+`columnsToAdd`, `columnsToAlter`, and `columnsToRemove` can all be added to the alterAbleQuery like so:
+
+```
+await sqlService.alterTableQuery({
+  columnsToAdd: [
+    {
+      name: 'location',
+      type: 'VARCHAR',
+      size: 255,
+    },
+  ],
+  columnsToAlter: [
+    {
+      name: 'firstName',
+      newName: 'fullName',
+      type: 'VARCHAR',
+      size: 255,
+    },
+  ],
+  columnsToRemove: [
+    {
+      name: 'lastName',
+    },
+  ],
+});
+```
+
+### Drop Tables
+
+Create an instance of the SQL Service
+
+```
+const sqlService = new SqlService('users')
+```
+
+```
+sqlService.dropTable();
 ```
