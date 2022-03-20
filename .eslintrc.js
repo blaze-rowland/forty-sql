@@ -21,5 +21,8 @@ module.exports = {
     'comma-dangle': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     quotes: ['error', 'single', { allowTemplateLiterals: true }],
+    'max-len': {
+      code: 120,
+    },
   },
 };
