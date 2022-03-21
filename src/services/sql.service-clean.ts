@@ -1,4 +1,5 @@
 import mysql from 'mysql2';
+import { Subject } from 'rxjs';
 import {
   SqlAlterTableQuery,
   SqlJoinQuery,
@@ -13,12 +14,13 @@ import {
   sequelizeCreateColumns,
   sequelizeDeleteQuery,
   sequelizeFindQuery,
+  sequelizeInsertQuery,
   sequelizeJoinQuery,
   sequelizeUnionQuery,
   sequelizeUpdateQuery,
 } from './utils/sequelize/sequelize';
 
-export class SqlService {
+export class SqlServiceClean {
   private _tableName: string;
   private _columns: Array<string>;
 
@@ -43,6 +45,8 @@ export class SqlService {
       sequelizeCreateColumns(columnsToCreate),
     ]);
 
+    console.log(query);
+
     return this._runQuery(query);
   }
 
@@ -52,34 +56,43 @@ export class SqlService {
     return this._runQuery(query);
   }
 
-  public createFindQuery(sqlQuery: SqlWhereQuery): string {
-    return sequelizeFindQuery(sqlQuery, this._tableName);
+  public createFindQuery(sqlQuery?: SqlWhereQuery, tableName?: string): string {
+    return sequelizeFindQuery(tableName || this._tableName, sqlQuery);
   }
 
-  public createInsertQuery(): string | any {
-    return `INSERT INTO ${this._tableName} SET ?`;
+  public createInsertQuery(): string {
+    return sequelizeInsertQuery(this._tableName);
   }
 
-  public createUpdateQuery(sqlQuery: SqlUpdateQuery): string | any {
+  public createUpdateQuery(sqlQuery: SqlUpdateQuery): string {
     return sequelizeUpdateQuery(sqlQuery, this._tableName);
   }
 
-  public createDeleteQuery(condition: any): string | any {
+  public createDeleteQuery(condition: any): string {
     return sequelizeDeleteQuery(condition, this._tableName);
   }
 
-  public createAlterTableQuery(
-    sqlQuery: SqlAlterTableQuery
-  ): Promise<any> | any {
+  public createAlterTableQuery(sqlQuery: SqlAlterTableQuery): string {
     return sequelizeAlterColumnsQuery(sqlQuery);
   }
 
-  public createJoinQuery(sqlQuery: SqlJoinQuery): string | any {
+  public createJoinQuery(sqlQuery: SqlJoinQuery): string | void {
     return sequelizeJoinQuery(sqlQuery, this._tableName);
   }
 
-  public createUnionQuery(sqlQuery: SqlUnionQuery): string | any {
-    return sequelizeUnionQuery(sqlQuery, this.createFindQuery);
+  public createUnionQuery(sqlQuery: SqlUnionQuery): string | void {
+    return sequelizeUnionQuery(sqlQuery, this.createFindQuery, this._tableName);
+  }
+
+  public runQuery(query: any, values?: any) {
+    const result = new Subject();
+
+    this.pool.query(query, values, (err, rows, fields) => {
+      if (err) console.error(err);
+      result.next(rows);
+    });
+
+    return result.asObservable();
   }
 
   private _runQuery(query: string): Promise<any> {

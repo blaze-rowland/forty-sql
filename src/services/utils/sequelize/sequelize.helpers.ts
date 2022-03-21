@@ -15,6 +15,7 @@ export function handleForeign(
   result: Array<CreateQuery>,
   column: ModifyTableColumn
 ) {
+  // result.push('ADD CONSTRAINT', `fk_${column.name}`, ',');
   result.push(
     ',',
     'FOREIGN KEY',
@@ -23,6 +24,19 @@ export function handleForeign(
     column.foreignKey?.referenceTable,
     `(${column.foreignKey?.referenceId})`
   );
+
+  if (column?.foreignKey?.action) {
+    switch (column.foreignKey.action) {
+      case 'cascade':
+        result.push(', ON DELETE CASCADE', 'ON UPDATE CASCADE');
+        break;
+      case 'none':
+        result.push(', ON DELETE NO ACTION', 'ON UPDATE NO ACTION');
+        break;
+      default:
+        throw new Error('Foreign Key Action Unknown');
+    }
+  }
   return result;
 }
 
@@ -32,7 +46,6 @@ export function handlePrimaryKey(
 ) {
   if (column.autoIncrement) result.push('AUTO_INCREMENT');
   result.push('PRIMARY KEY');
-  result.push(`(${column.name})`);
   return result;
 }
 
@@ -51,7 +64,7 @@ export function handleCondition(
     result.push(
       key,
       '=',
-      value,
+      `'${value}'`,
       addIfNotLastIteration(conditionArr, index, operator)
     );
   });

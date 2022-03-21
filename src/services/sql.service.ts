@@ -119,6 +119,7 @@ export class SqlService {
       sqlQuery.orderBy,
       sqlQuery.asc
     );
+    console.log(query);
     return `${query}`;
   }
 

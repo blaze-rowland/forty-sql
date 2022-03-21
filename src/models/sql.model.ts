@@ -44,7 +44,10 @@ export type SqlJoinType = 'INNER JOIN' | 'RIGHT JOIN' | 'LEFT JOIN';
 export interface ForeignKeyConstraint {
   referenceId: string;
   referenceTable: string;
+  action?: ForeignKeyAction;
 }
+
+export type ForeignKeyAction = 'none' | 'cascade';
 export interface TableColumn {
   name: string;
   type?: SqlDataType;

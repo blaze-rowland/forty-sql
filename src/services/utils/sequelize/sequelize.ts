@@ -27,7 +27,16 @@ export function createQuery(queryArray: Array<CreateQuery>): string {
 export function sequelizeCreateColumns(
   columnsToCreate: Array<TableColumn>
 ): string {
-  let result = '';
+  columnsToCreate.sort((left, right) => {
+    return left.hasOwnProperty('foreignKey')
+      ? 1
+      : right.hasOwnProperty('foreignKey')
+      ? -1
+      : 0;
+  });
+
+  let result = '(';
+
   columnsToCreate.forEach((column, index) => {
     result += sequelizeCreateSingleColumn(column);
     result += addIfNotLastIteration(columnsToCreate, index, ', ');
@@ -47,6 +56,7 @@ export function sequelizeCreateSingleColumn(column: ModifyTableColumn): string {
   if (column.default) result.push('DEFAULT', column.default);
 
   if (column.primaryKey) result = handlePrimaryKey(result, column);
+
   if (column.foreignKey) result = handleForeign(result, column);
 
   if (column.unique) result.push('UNIQUE');
@@ -55,20 +65,18 @@ export function sequelizeCreateSingleColumn(column: ModifyTableColumn): string {
 }
 
 export function sequelizeFindQuery(
-  sqlQuery: SqlWhereQuery,
-  currentTableName: string
+  currentTableName: string,
+  sqlQuery?: SqlWhereQuery
 ): string {
-  const { columns, tableName } = sqlQuery;
-
   if (!sqlQuery) return `SELECT * FROM ${currentTableName}`;
 
   const result: Array<CreateQuery> = [];
 
   result.push(
     'SELECT',
-    columns || '*',
+    sqlQuery.columns || '*',
     'FROM',
-    tableName || currentTableName,
+    sqlQuery.tableName || currentTableName,
     sequelizeWhereQuery(sqlQuery) ?? ''
   );
 
@@ -80,14 +88,15 @@ export function sequelizeWhereQuery(sqlQuery: SqlWhereQuery): string {
 
   if (!sqlQuery || !sqlQuery.condition) {
     if (sqlQuery.limit) result.push('LIMIT', sqlQuery.limit);
+    return createQuery(result);
   }
 
   result.push('WHERE');
 
   result = handleCondition(result, sqlQuery);
 
-  if (sqlQuery.isNull) result.push('IS NOT NULL');
-  else result.push('IS NULL');
+  if (sqlQuery.isNull === true) result.push('IS NOT NULL');
+  if (sqlQuery.isNull === false) result.push('IS NULL');
 
   if (sqlQuery.groupBy) result.push('GROUP BY', sqlQuery.groupBy);
 
@@ -98,6 +107,14 @@ export function sequelizeWhereQuery(sqlQuery: SqlWhereQuery): string {
 
   if (sqlQuery.having) result.push('HAVING', sqlQuery.having);
   if (sqlQuery.limit) result.push('LIMIT', sqlQuery.limit);
+
+  return createQuery(result);
+}
+
+export function sequelizeInsertQuery(tableName: string): string {
+  const result: Array<CreateQuery> = [];
+
+  result.push('INSERT INTO', tableName, 'SET ?');
 
   return createQuery(result);
 }
@@ -183,6 +200,8 @@ export function sequelizeJoinQuery(
     if (column.table) result.push(column.table);
     else result.push(tableName);
 
+    result.push('.', column.column);
+
     if (column.as) result.push('as', column.as);
 
     result.push(addIfNotLastIteration(columnsToSelect, index, ','));
@@ -201,7 +220,7 @@ export function sequelizeJoinQuery(
       '=',
       column.to.table,
       '.',
-      column.to.table
+      column.to.column
     );
   });
 
@@ -223,7 +242,8 @@ export function sequelizeJoinQuery(
 
 export function sequelizeUnionQuery(
   sqlQuery: SqlUnionQuery,
-  createFindQuery: any
+  createFindQuery: any,
+  tableName: string
 ): string | void {
   const { queries, all } = sqlQuery;
 
@@ -235,7 +255,7 @@ export function sequelizeUnionQuery(
     const unionAll = all ? 'ALL' : '';
 
     result.push(
-      createFindQuery(query),
+      createFindQuery(query, tableName),
       addIfNotLastIteration(queries, index, `UNION ${unionAll}`)
     );
   });

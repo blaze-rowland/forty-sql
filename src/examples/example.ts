@@ -16,7 +16,7 @@ export const RunExample = async () => {
     Create Tables 
   --------------------------------------------------------------------
   */
-  // await new Seeder().init();
+  await new Seeder().init();
   /* 
   --------------------------------------------------------------------
     Add Values to Tables 
