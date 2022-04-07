@@ -23,6 +23,11 @@ Currently creating this as a hobby project, but we'll see where it goes.
 
 ## Changelog
 
+### Version 1.1.1
+
+- [Can now run all Table methods Asynchronously by adding Async suffix](https://github.com/blaze-rowland/forty-sql/issues/12)
+  - E.g. `userTable.create(...args)` can now be written as `await userTable.createAsync(...args)`
+
 ### Version 1.1.0
 
 - Completely refactored

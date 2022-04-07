@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { DatabaseService } from './services/database.service';
 
 export class Database {
@@ -23,5 +23,9 @@ export class Database {
 
   public delete(databaseName?: string): Observable<any> {
     return this.databaseService.delete(databaseName).run();
+  }
+
+  public deleteAsync(databaseName?: string): Promise<any> {
+    return lastValueFrom(this.delete(databaseName));
   }
 }
