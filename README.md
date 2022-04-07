@@ -23,6 +23,18 @@ Currently creating this as a hobby project, but we'll see where it goes.
 
 ## Changelog
 
+### Version 1.1.0
+
+- Completely refactored
+  - **Note** Almost everything syntax wise has stayed the same.
+  - Removed unnecessary dependencies
+  - Now using a chaining convention, although you may not ever need to touch it.
+  - Now uses `Query` as an abstraction.
+    - Now use `TableQuery` or `DatabaseQuery`
+  - Can now create, switch, or drop Databases
+  - `SqlService` is now an abstraction
+    - Now can use `TableService` or `DatabaseService`
+
 ### Version 1.0.5
 
 - [SqlService can now drop tables](https://github.com/blaze-rowland/forty-sql/issues/9)
@@ -82,29 +94,37 @@ export class UserTable extends Table<UserSchema> {
 
 ```
 async createProducts(): Promise<void> {
-    const sql = new SqlService('products');
-    await sql.createTableQuery([
-      {
-        name: 'id',
-        type: 'INT',
-        size: 11,
-        primaryKey: true,
-        autoIncrement: true,
-        nullable: false,
-      },
-      { name: 'name', type: 'VARCHAR', size: 255, default: 'Test Product' },
-      { name: 'price', type: 'INT', size: 11 },
-      { name: 'createdAt', type: 'DATETIME' },
-      {
-        name: 'createdBy',
-        type: 'INT',
-        nullable: false,
-        foreignKey: {
-          referenceId: 'id',
-          referenceTable: 'users',
-        },
-      },
-    ]);
+  return new Promise((resolve, reject) => {
+    try {
+      const tableService = new TableService('products');
+      tableService.create({
+        columns: [
+          {
+            name: 'id',
+            type: 'INT',
+            size: 11,
+            primaryKey: true,
+            autoIncrement: true,
+            nullable: false,
+          },
+          { name: 'name', type: 'VARCHAR', size: 255, default: 'Test Product' },
+          { name: 'price', type: 'INT', size: 11 },
+          { name: 'createdAt', type: 'DATETIME' },
+          {
+            name: 'createdBy',
+            type: 'INT',
+            nullable: false,
+            foreignKey: {
+              referenceId: 'id',
+              referenceTable: 'users',
+            },
+          },
+        ]
+      }).subscribe((res) => resolve());
+    } catch (err) {
+      return reject(err);
+    }
+  })
 }
 ```
 
@@ -113,7 +133,7 @@ async createProducts(): Promise<void> {
 ### Add Values to Table
 
 ```
-userTable.add({
+userTable.insert({
   fullName: 'Blaze Rowland',
   dateOfBirth: new Date(1997, 11, 14),
 });
@@ -121,7 +141,7 @@ userTable.add({
 
 ---
 
-### Find and Find one Value
+### Find, Find one, or Find a specific amount of Values
 
 ```
 userTable
@@ -140,6 +160,17 @@ userTable
       fullName: 'Blaze Rowland',
     },
   })
+  .subscribe((user) => console.log(user));
+```
+
+```
+userTable
+  .findAmount({
+    columns: ['id'],
+    condition: {
+      fullName: 'Blaze Rowland',
+    },
+  }, 3)
   .subscribe((user) => console.log(user));
 ```
 
@@ -194,7 +225,7 @@ userTable
   .subscribe({
     next: (user) => {
       productTable
-        .add({
+        .insert({
           name: 'Pacifier',
           price: 5,
           createdAt: new Date(),
@@ -282,19 +313,20 @@ productTable.delete({ id: 1 });
 ### Union Tables
 
 ```
-userTable
+productTable
   .union({
-    queries: [
-      {
-        columns: ['id', 'fullName'],
-        tableName: 'users',
+    columns: ['id', 'name'],
+    conditions: {
+      id: '1',
+    },
+    all: true,
+    union: {
+      table: userTable.tableName,
+      columns: ['id', 'fullName'],
+      conditions: {
+        id: '1',
       },
-      {
-        columns: ['id', 'name'],
-        tableName: 'products',
-      },
-    ],
-    all: true, // Changes whether Union statement is UNION (false || not provided) or UNION ALL (true)
+    },
   })
   .subscribe((res) => console.log(res));
 ```
@@ -310,22 +342,22 @@ const sqlService = new SqlService('users')
 Add Columns:
 
 ```
-await sqlService.alterTableQuery({
+userTable.alter({
   columnsToAdd: [
     {
       name: 'location',
       type: 'VARCHAR',
       size: 255,
-    },
-  ],
-});
+    }
+  ]
+}).subscribe((res) => console.log(res))
 ```
 
 Alter Columns:
 
 ```
-await sqlService.alterTableQuery({
-  columnsToAlter: [
+userTable.alter({
+  columnsToModify: [
     {
       name: 'firstName',
       newName: 'fullName',
@@ -339,7 +371,7 @@ await sqlService.alterTableQuery({
 Remove Columns:
 
 ```
-await sqlService.alterTableQuery({
+userTable.alter({
   columnsToRemove: [
     {
       name: 'lastName',
@@ -351,7 +383,7 @@ await sqlService.alterTableQuery({
 `columnsToAdd`, `columnsToAlter`, and `columnsToRemove` can all be added to the alterAbleQuery like so:
 
 ```
-await sqlService.alterTableQuery({
+userTable.alter({
   columnsToAdd: [
     {
       name: 'location',
@@ -359,7 +391,7 @@ await sqlService.alterTableQuery({
       size: 255,
     },
   ],
-  columnsToAlter: [
+  columnsToModify: [
     {
       name: 'firstName',
       newName: 'fullName',
@@ -377,12 +409,51 @@ await sqlService.alterTableQuery({
 
 ### Drop Tables
 
-Create an instance of the SQL Service
-
 ```
-const sqlService = new SqlService('users')
+userTable().drop();
 ```
 
+## Database
+
+### Creating an instance of the Database class
+
 ```
-sqlService.dropTable();
+const fortyDatabase = new Database('forty');
+```
+
+### Creating a database
+
+```
+fortyDatabase.create();
+```
+
+### Switching databases
+
+_Option 1_
+
+```
+fortyDatabase.databaseName = 'newDatabase';
+fortyDatabase.switch();
+```
+
+_Option 2_
+
+```
+fortyDatabase.switch('newDatabase');
+```
+
+### Dropping a database
+
+_Option 1_
+
+```
+// This will throw an error if you haven't FIRST switched databases.
+
+fortyDatabase.delete();
+```
+
+_Option 2_
+
+```
+fortyDatabase.delete('newDatabase');
 ```

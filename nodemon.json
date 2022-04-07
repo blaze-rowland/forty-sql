@@ -1,6 +1,6 @@
 {
   "ignore": ["**/*.test.ts", "**/*.spec.ts", "node_modules", "src/client"],
   "watch": ["src/"],
-  "exec": "tsc -p tsconfig.json && node lib/",
+  "exec": "rm -rf ./lib && tsc -p tsconfig.json && node lib/",
   "ext": "ts"
 }

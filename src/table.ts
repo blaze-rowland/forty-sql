@@ -1,123 +1,73 @@
-import { firstValueFrom, Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import {
-  SqlJoinQuery,
-  SqlUnionQuery,
-  SqlUpdateQuery,
-  SqlWhereQuery,
+  AlterQuery,
+  ColumnKeyValue,
+  CreateQuery,
+  DeleteQuery,
+  FindQuery,
+  JoinQuery,
+  UnionQuery,
+  UpdateQuery,
 } from './models/sql.model';
-import { SqlService } from './services/sql.service';
-
-type Dataset<T> = Array<T>;
+import { TableService } from './services/table.service';
 
 export abstract class Table<T> {
-  private _columns: Array<string>;
-  private _sqlService: SqlService;
   public tableName: string;
-  public dataset: Dataset<T>;
+  public schema: T;
+  public dataset: Array<T>;
+  public columns: Array<string>;
+  public tableService: TableService;
 
-  constructor(tableName: string, schema, dataset?: Dataset<T>) {
+  constructor(tableName: string, schema: any, dataset: Array<T> = []) {
     this.tableName = tableName;
-    this.dataset = dataset || [];
-    this._columns = Object.keys(new schema());
-    this._sqlService = new SqlService(this.tableName, this._columns);
+    this.schema = schema;
+    this.dataset = dataset;
+    this.columns = Object.keys(new schema());
+
+    this.tableService = new TableService(this.tableName);
   }
 
-  public find(sqlQuery?: SqlWhereQuery): Observable<Dataset<T>> {
-    const query = this._sqlService.createFindQuery(sqlQuery);
-    const result = new Subject<Dataset<T>>();
-
-    this._sqlService.pool.query(query, (err, rows: Dataset<T>, fields) => {
-      if (err) console.error(err);
-      result.next(rows);
-    });
-
-    return result.asObservable();
+  public find(query?: FindQuery): Observable<Array<T>> {
+    return this.tableService.find(query).run();
   }
 
-  public findOne(sqlQuery: SqlWhereQuery): Observable<T> {
-    const result = new Subject<T>();
-    firstValueFrom(this.find(sqlQuery)).then((res) => result.next(res[0]));
-
-    return result.asObservable();
+  public findOne(query: FindQuery): Observable<T> {
+    return this.tableService.findOne(query).run();
   }
 
-  public add(values: T): Observable<any> {
-    const query = this._sqlService.createInsertQuery();
-    const result = new Subject();
-
-    this.dataset.push(values);
-
-    this._sqlService.pool.query(query, values, (err, rows, fields) => {
-      if (err) console.error(err);
-      result.next(rows);
-    });
-
-    return result.asObservable();
+  public findAmount(query: FindQuery, amount: number): Observable<T> {
+    return this.tableService.findAmount(query, amount).run();
   }
 
-  public update(sqlQuery: SqlUpdateQuery): Observable<any> {
-    const query = this._sqlService.createUpdateQuery(sqlQuery);
-    const result = new Subject();
-
-    this._sqlService.pool.query(
-      query,
-      Object.values(sqlQuery.values),
-      (err, rows, fields) => {
-        if (err) console.error(err);
-        result.next(rows);
-      }
-    );
-
-    return result.asObservable();
+  public insert(values: ColumnKeyValue): Observable<any> {
+    return this.tableService.insert().run(values);
   }
 
-  public delete(condition: any): Observable<any> {
-    const query = this._sqlService.createDeleteQuery(condition);
-    const result = new Subject();
-
-    this._sqlService.pool.query(query, (err, rows, fields) => {
-      if (err) console.error(err);
-      result.next(rows);
-    });
-
-    return result.asObservable();
+  public update(query: UpdateQuery): Observable<any> {
+    return this.tableService.update(query).run(query.values);
   }
 
-  public join(sqlQuery: SqlJoinQuery): Observable<any> {
-    const query = this._sqlService.createJoinQuery(sqlQuery);
-    const result = new Subject();
-
-    this._sqlService.pool.query(query, (err, rows, fields) => {
-      if (err) console.error(err);
-
-      result.next(rows);
-    });
-
-    return result.asObservable();
+  public delete(query: DeleteQuery): Observable<any> {
+    return this.tableService.delete(query).run();
   }
 
-  public union(sqlQuery: SqlUnionQuery): Observable<any> {
-    const query = this._sqlService.createUnionQuery(sqlQuery);
-    const result = new Subject();
-
-    this._sqlService.pool.query(query, (err, rows, fields) => {
-      if (err) console.error(err);
-
-      result.next(rows);
-    });
-
-    return result.asObservable();
+  public create(config: CreateQuery): Observable<any> {
+    return this.tableService.create(config).run();
   }
 
-  public rawQuery(sql: string): Observable<any> {
-    const result = new Subject();
+  public alter(config: AlterQuery): Observable<any> {
+    return this.tableService.alter(config).run();
+  }
 
-    this._sqlService.pool.query(sql, (err, rows, fields) => {
-      if (err) console.error(err);
+  public union(config: UnionQuery): Observable<any> {
+    return this.tableService.union(config).run();
+  }
 
-      result.next(rows);
-    });
+  public join(config: JoinQuery): Observable<any> {
+    return this.tableService.join(config).run();
+  }
 
-    return result.asObservable();
+  public drop(): Observable<any> {
+    return this.tableService.drop().run();
   }
 }
