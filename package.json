@@ -1,6 +1,6 @@
 {
   "name": "@forty-boy/sql",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A MySQL Library for Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,8 +19,7 @@
     "lib"
   ],
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "nodemon"
+    "start": "nodemon ./lib/index.js"
   },
   "author": "Blaze Rowland",
   "license": "ISC",
@@ -33,36 +32,14 @@
     "url": "https://github.com/blaze-rowland/forty-sql.git"
   },
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
     "dotenv": "^16.0.0",
     "mysql2": "^2.3.3",
-    "rxjs": "^7.5.4"
+    "rxjs": "^7.5.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
-    "@babel/plugin-proposal-class-properties": "^7.16.7",
-    "@babel/preset-env": "^7.16.11",
     "@tsconfig/node12": "^1.0.9",
-    "@types/express": "^4.17.13",
-    "@types/node": "^17.0.21",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
-    "@typescript-eslint/parser": "^5.12.1",
-    "awesome-typescript-loader": "^5.2.1",
-    "babel-eslint": "^10.0.0",
-    "babel-loader": "^8.2.3",
-    "clean-webpack-plugin": "^4.0.0",
-    "concurrently": "^7.0.0",
-    "eslint": "^8.10.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.4",
-    "file-loader": "^6.2.0",
+    "@types/node": "^17.0.23",
     "nodemon": "^2.0.15",
-    "source-map-loader": "^3.0.1",
-    "typescript": "^4.5.5",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.4"
+    "typescript": "^3.9.10"
   }
 }
